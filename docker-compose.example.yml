@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # Example database (PostgreSQL)
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # Database backup service
+  db-backup:
+    image: greenstorm911/db-backup-with-docker:latest
+    depends_on:
+      - db
+    environment:
+      # Database connection
+      DB_TYPE: postgresql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_DATABASE: myapp
+      
+      # Backup settings (optional)
+      BACKUP_RETENTION_COUNT: 5
+      BACKUP_COMPRESSION: zip
+      CRON_SCHEDULE: "0 3 * * *"  # Daily at 3 AM
+      
+      # Telegram notifications (optional)
+      TELEGRAM_ENABLED: true
+      TELEGRAM_BOT_TOKEN: "your_bot_token_here"
+      TELEGRAM_CHAT_ID: "your_chat_id_here"
+      
+      # Email notifications (optional)
+      EMAIL_ENABLED: false
+      # EMAIL_SMTP_SERVER: smtp.gmail.com
+      # EMAIL_USERNAME: your_email@gmail.com
+      # EMAIL_PASSWORD: your_app_password
+      # EMAIL_FROM: your_email@gmail.com
+      # EMAIL_TO: admin@yourcompany.com
+      
+      # Logging
+      LOG_LEVEL: INFO
+    volumes:
+      - backups:/backups
+      - ./logs:/var/log/backup
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+  backups:
+
+networks:
+  app-network:
+    driver: bridge

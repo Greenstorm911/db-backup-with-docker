@@ -49,13 +49,13 @@ db-backup-with-docker/
 
 ### Option 1: Using Pre-built Image (Recommended)
 
-Use the pre-built image from GitHub Container Registry:
+Use the pre-built image from Docker Hub:
 
 ```yaml
 services:
   db-backup:
     container_name: backup
-    image: ghcr.io/greenstorm911/db-backup-with-docker:latest
+    image: greenstorm911/db-backup-with-docker:latest
     depends_on:
       - db
     env_file: .env
@@ -88,6 +88,8 @@ services:
 volumes:
   backups:
 ```
+
+**💡 Quick Start**: See [docker-compose.example.yml](docker-compose.example.yml) for a complete working example with PostgreSQL!
 
 ### 2. Environment Configuration
 
@@ -288,10 +290,12 @@ LOG_LEVEL=DEBUG
 
 This project includes automated CI/CD workflows:
 
-- **Build and Push**: Automatically builds and pushes Docker images to GitHub Container Registry on every push to main
+- **Build and Push**: Automatically builds and pushes Docker images to Docker Hub on every push to main
 - **Testing**: Runs Python linting and basic configuration tests
 - **Security**: Scans for vulnerabilities using Trivy
 - **Releases**: Creates multi-architecture builds and GitHub releases when you push a tag
+
+**Note**: To enable Docker Hub publishing, see [Docker Hub Setup Instructions](DOCKER_HUB_SETUP.md)
 
 ### Creating a Release
 
@@ -303,7 +307,7 @@ This project includes automated CI/CD workflows:
 
 2. The GitHub Action will automatically:
    - Build multi-architecture Docker images (amd64, arm64)
-   - Push to `ghcr.io/greenstorm911/db-backup-with-docker:v1.0.0`
+   - Push to `greenstorm911/db-backup-with-docker:v1.0.0` on Docker Hub
    - Create a GitHub release with changelog
 
 ### Development

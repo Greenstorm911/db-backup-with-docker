@@ -22,15 +22,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY main.py .
 COPY config/ ./config/
 COPY src/ ./src/
-COPY crontab /etc/crontabs/root
 
 # Set permissions
 RUN chmod +x main.py && \
-    chmod 0644 /etc/crontabs/root && \
     touch /var/log/backup/backup.log
 
 # Set Python path
 ENV PYTHONPATH=/app
 
 # Start cron in foreground and redirect cron output to stdout for Docker logs
-CMD ["sh", "-c", "busybox crond -f -L /dev/stdout"]
+CMD ["sh", "-c", "echo \"${CRON_SCHEDULE:-0 3 * * *} cd /app && python main.py\" > /etc/crontabs/root && chmod 0644 /etc/crontabs/root && busybox crond -f -L /dev/stdout"]

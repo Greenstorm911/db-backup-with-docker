@@ -1,1 +1,1 @@
-* * * * * cd /app && python main.py
+0 3 * * * cd /app && python main.py

@@ -47,6 +47,10 @@ services:
       
       # Logging
       LOG_LEVEL: INFO
+      # Log and message lang (fa en)
+      LANGUAGE: fa
+      # Project promotion (optional - set to false to disable star request)
+      SHOW_STAR_MESSAGE: true
     volumes:
       - backups:/backups
       - ./logs:/var/log/backup

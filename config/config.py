@@ -55,6 +55,13 @@ class Config:
                 'schedule': os.getenv('CRON_SCHEDULE', '0 3 * * *'),  # Daily at 3 AM
             },
             
+            # Project promotion configuration
+            'promotion': {
+                'enabled': os.getenv('SHOW_STAR_MESSAGE', 'true').lower() == 'true',
+            },
+            
+            # Language configuration
+            'language': os.getenv('LANGUAGE', 'en').lower(),  # 'en' or 'fa'
 
             'logging': {
                 'level': os.getenv('LOG_LEVEL', 'INFO'),
@@ -127,7 +134,24 @@ class Config:
         return self._config.get(provider, {})
     
     def is_notification_enabled(self, provider: str) -> bool:
+        """Check if a notification provider is enabled."""
         return self._config.get(provider, {}).get('enabled', False)
+    
+    def get_promotion_config(self) -> Dict[str, Any]:
+        """Get promotion configuration."""
+        return self._config['promotion']
+    
+    def is_promotion_enabled(self) -> bool:
+        """Check if promotion message is enabled."""
+        return self._config['promotion'].get('enabled', True)
+    
+    def get_language(self) -> str:
+        """Get the configured language."""
+        return self._config.get('language', 'en')
+
+
+# Global configuration instance
+config = Config()
 
 
 

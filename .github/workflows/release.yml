@@ -62,21 +62,61 @@ jobs:
         tag_name: ${{ github.ref_name }}
         name: Release ${{ github.ref_name }}
         body: |
-          ## Changes in this Release
+          ## Changes in v1.1.0
           
-          ### Docker Image
+          ### 🌟 Major New Features
+          - **🌐 Multi-Language Support**: Complete English and Persian (Farsi) localization
+          - **📚 Persian Documentation**: Full README.fa.md with Persian instructions
+          - **⚙️ Language Configuration**: Set `LANGUAGE=en` or `LANGUAGE=fa`
+          - **⭐ Enhanced Promotion**: Static star message with built-in disable instructions
+          - **🔧 Translation Framework**: Comprehensive localization system
+          
+          ### 🌍 Language Features
+          - All messages, notifications, and logs in your preferred language
+          - Persian (Farsi) support with proper RTL text handling
+          - Easy language switching via environment variable
+          - Localized error messages and success notifications
+          
+          ### 🐳 Docker Image
           - **Image**: `${{ env.IMAGE_NAME }}:${{ github.ref_name }}`
           - **Docker Hub**: https://hub.docker.com/r/greenstorm911/db-backup-with-docker
           - **Platforms**: linux/amd64, linux/arm64
           
-          ### Usage
+          ### 🚀 Quick Start with Language Support
           ```yaml
           services:
             db-backup:
               image: ${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-              # ... rest of your configuration
+              environment:
+                # Database configuration
+                DB_TYPE: postgresql
+                DB_HOST: your-host
+                DB_USER: your-user
+                DB_PASSWORD: your-password
+                DB_DATABASE: your-database
+                
+                # Language setting (NEW in v1.1.0!)
+                LANGUAGE: fa  # 'en' for English, 'fa' for Persian
+                
+                # Notifications (now multilingual!)
+                TELEGRAM_ENABLED: true
+                TELEGRAM_BOT_TOKEN: your-token
+                TELEGRAM_CHAT_ID: your-chat-id
+              volumes:
+                - ./backups:/backups
           ```
           
-          See the [README](README.md) for full configuration options.
+          ### 📖 Documentation
+          - **English**: [README.md](README.md)
+          - **Persian/Farsi**: [README.fa.md](README.fa.md) ✨ NEW!
+          
+          ### �️ Language Examples
+          **English**: "✅ Database backup completed successfully!"
+          **Persian**: "✅ پشتیبان‌گیری از پایگاه داده با موفقیت تکمیل شد!"
+          
+          ### 🔧 Migration from v1.0.0
+          - No breaking changes - existing configurations work as-is
+          - Add `LANGUAGE=en` or `LANGUAGE=fa` to enable multilingual features
+          - Star message behavior changed to static (but can still be disabled)
         draft: false
         prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}

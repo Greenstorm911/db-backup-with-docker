@@ -5,15 +5,19 @@
 
 A scalable, modular Python-based database backup system that supports multiple database types and notification providers. This system can be easily integrated into any Docker Compose setup to provide automated database backups.
 
+> **فارسی**: For Persian documentation, see [README.fa.md](README.fa.md) | برای مستندات فارسی، [README.fa.md](README.fa.md) را مشاهده کنید
+
 ## Features
 
 - **Multiple Database Support**: PostgreSQL, MySQL/MariaDB with easy extensibility
 - **Multiple Notification Providers**: Telegram, Email with modular architecture
+- **Multi-Language Support**: English and Persian (Farsi) with full localization
 - **Configurable Scheduling**: Customizable cron schedules
 - **File Compression**: Optional ZIP compression for backup files
 - **Backup Retention**: Automatic cleanup of old backup files
 - **Error Handling**: Comprehensive error handling with detailed logging
 - **Environment-based Configuration**: All settings via environment variables
+- **Project Promotion**: Optional star request message (easily disabled)
 - **Docker Ready**: Optimized for containerized deployments
 
 ## Project Structure
@@ -142,7 +146,32 @@ LOG_LEVEL=INFO                 # DEBUG, INFO, WARNING, ERROR, CRITICAL
 LOG_FILE=/var/log/backup/backup.log
 ```
 
+#### Optional Language Configuration
+```env
+# Language (OPTIONAL - defaults to English)
+LANGUAGE=en                    # 'en' for English, 'fa' for Persian/Farsi
+```
+
+#### Optional Project Promotion
+```env
+# Project promotion (OPTIONAL - enabled by default)
+SHOW_STAR_MESSAGE=true         # Set to false to disable the star project reminder message
+```
+
 ## Configuration Details
+
+### Language Support
+
+The system supports multiple languages for all messages, notifications, and logs:
+
+- **English** (`en`) - Default
+- **Persian/Farsi** (`fa`) - Complete translation
+
+Set your preferred language:
+```env
+LANGUAGE=fa  # For Persian
+LANGUAGE=en  # For English (default)
+```
 
 ### Database Types
 
@@ -160,6 +189,15 @@ Currently supported database types:
 
 #### Email Setup
 For Gmail, use an app-specific password instead of your regular password.
+
+### Project Promotion
+
+By default, successful backup notifications include a friendly request to star the project on GitHub. This helps support the project and lets others discover it. The message also includes instructions on how to disable it.
+
+**To disable the star message:**
+```env
+SHOW_STAR_MESSAGE=false
+```
 
 ### Backup Retention
 

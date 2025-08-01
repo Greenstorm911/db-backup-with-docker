@@ -8,6 +8,7 @@ from config.config import config
 from src.database import DatabaseFactory, DatabaseBackupError
 from src.notification import NotificationFactory, BaseNotifier
 from src.utils import compress_file, format_duration, get_file_size_mb
+from src.lang import t
 
 
 class BackupManager:
@@ -17,6 +18,11 @@ class BackupManager:
         self.logger = logging.getLogger(__name__)
         self.config = config
         self.notifiers: List[BaseNotifier] = []
+        
+        # Set up translator with configured language
+        from src.lang.translator import get_translator
+        self.translator = get_translator()
+        self.translator.set_language(self.config.get_language())
         
         # Initialize notifiers
         self._initialize_notifiers()
@@ -37,12 +43,12 @@ class BackupManager:
             self.notifiers = NotificationFactory.create_all_notifiers(notifier_configs)
             
             if self.notifiers:
-                self.logger.info(f"Initialized {len(self.notifiers)} notification providers")
+                self.logger.info(t('notification_init_success', count=len(self.notifiers)))
             else:
-                self.logger.info("No notification providers enabled")
+                self.logger.info(t('notification_init_none'))
                 
         except Exception as e:
-            self.logger.error(f"Failed to initialize notifiers: {e}")
+            self.logger.error(t('notification_init_failed', error=str(e)))
     
     def run_backup(self) -> bool:
         """
@@ -55,7 +61,7 @@ class BackupManager:
         backup_file = None
         
         try:
-            self.logger.info("Starting database backup process")
+            self.logger.info(t('backup_starting'))
             
             # Get database configuration
             db_config = self.config.get_database_config()
@@ -70,14 +76,14 @@ class BackupManager:
             backup_file = database.backup()
             backup_size_mb = get_file_size_mb(backup_file)
             
-            self.logger.info(f"Backup created: {backup_file} ({backup_size_mb:.1f} MB)")
+            self.logger.info(t('backup_created', file=backup_file, size=backup_size_mb))
             
             # Compress backup if configured
             compressed_file = self._compress_backup(backup_file)
             if compressed_file:
                 final_backup_file = compressed_file
                 final_size_mb = get_file_size_mb(compressed_file)
-                self.logger.info(f"Backup compressed: {compressed_file} ({final_size_mb:.1f} MB)")
+                self.logger.info(t('backup_compressed', file=compressed_file, size=final_size_mb))
             else:
                 final_backup_file = backup_file
                 final_size_mb = backup_size_mb
@@ -96,17 +102,17 @@ class BackupManager:
             )
             self._send_notifications('success', final_backup_file, success_message)
             
-            self.logger.info(f"Backup process completed successfully in {format_duration(duration)}")
+            self.logger.info(t('backup_process_completed', duration=format_duration(duration)))
             return True
             
         except DatabaseBackupError as e:
-            error_msg = f"Database backup failed: {e}"
+            error_msg = t('backup_failed') + f": {e}"
             self.logger.error(error_msg)
             self._send_notifications('failure', None, error_msg)
             return False
             
         except Exception as e:
-            error_msg = f"Unexpected error during backup: {e}"
+            error_msg = t('unexpected_error', error=str(e))
             self.logger.error(error_msg, exc_info=True)
             self._send_notifications('failure', None, error_msg)
             return False
@@ -146,18 +152,22 @@ class BackupManager:
         
         db_config = self.config.get_database_config()
         
-        message = f"""✅ Database backup completed successfully!
+        message = f"""{t('success_indicator')} {t('backup_completed')}
 
-Database Details:
-- Type: {db_config['type']}
-- Host: {db_config['host']}
-- Database: {db_config['database']}
+{t('database_details')}:
+- {t('database_type')}: {db_config['type']}
+- {t('database_host')}: {db_config['host']}
+- {t('database_name')}: {db_config['database']}
 
-Backup Details:
-- File: {os.path.basename(backup_file)}
-- Size: {size_mb:.1f} MB
-- Duration: {format_duration(duration)}
-- Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
+{t('backup_details')}:
+- {t('backup_file')}: {os.path.basename(backup_file)}
+- {t('backup_size')}: {size_mb:.1f} MB
+- {t('backup_duration')}: {format_duration(duration)}
+- {t('backup_timestamp')}: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
+        
+        # Add promotion message if enabled
+        if self.config.is_promotion_enabled():
+            message += f"\n\n{t('star_message')}"
         
         return message
     
@@ -181,4 +191,6 @@ Backup Details:
                     notifier.send_backup_failure(message)
                     
             except Exception as e:
-                self.logger.error(f"Failed to send notification via {notifier.__class__.__name__}: {e}")
+                self.logger.error(t('notification_send_failed', 
+                                  provider=notifier.__class__.__name__, 
+                                  error=str(e)))
